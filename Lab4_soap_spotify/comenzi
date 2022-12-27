@@ -1,0 +1,2 @@
+ pip3 install mysqlclient
+python3 -m pip install mariadb
