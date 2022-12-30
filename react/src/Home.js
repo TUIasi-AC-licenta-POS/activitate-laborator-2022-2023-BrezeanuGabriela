@@ -88,7 +88,7 @@ class Home extends React.Component {
         });
     }
 
-    async requestLoginToken() {
+    async requestAuthToken() {
         this.makeSoapRequest(this.state.loginToken)
             .then(
                 (res) => {
@@ -107,7 +107,7 @@ class Home extends React.Component {
     }
 
     componentDidMount() {
-        this.requestLoginToken();
+        this.requestAuthToken();
     }
 
     
