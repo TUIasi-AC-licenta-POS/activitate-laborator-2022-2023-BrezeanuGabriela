@@ -1,8 +1,21 @@
+//buildscript {
+//	repositories {
+//		mavenLocal()
+//		maven { url "https://repo1.maven.org/maven2" }
+//	}
+//	dependencies {
+//		classpath "org.openapitools:openapi-generator-gradle-plugin:5.0.0"
+//	}
+//}
+//apply plugin: 'org.openapi.generator'
+
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '2.7.6'
 	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 	id 'org.asciidoctor.convert' version '1.5.8'
+	id "org.springdoc.openapi-gradle-plugin" version "1.6.0"
+	id "org.openapi.generator" version "5.1.1"
 }
 
 group = 'pos'
@@ -15,6 +28,8 @@ configurations {
 	}
 	jaxb
 }
+
+//apply plugin: "org.openapi.generator"
 
 repositories {
 	mavenCentral()
@@ -94,6 +109,11 @@ dependencies {
 
 	// https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
 	implementation 'io.jsonwebtoken:jjwt:0.2'
+
+//	implementation 'io.swagger.core.v3:swagger-annotations:2.1.11'
+//	implementation 'io.springfox:springfox-swagger2:3.0.0'
+//	implementation 'io.springfox:springfox-swagger-ui:3.0.0'
+//	implementation 'org.springdoc:springdoc-openapi-ui:1.2.33'
 }
 
 tasks.named('test') {
@@ -105,3 +125,58 @@ tasks.named('asciidoctor') {
 	inputs.dir snippetsDir
 	dependsOn test
 }
+
+//openApiGenerate {
+//	generatorName = "java"
+//	inputSpec = "$rootDir/src/main/resources/swagger.yaml"
+//	outputDir = "$buildDir/generated".toString()
+//	apiPackage = "org.openapi.example.api"
+//	invokerPackage = "org.openapi.example.invoker"
+//	modelNameSuffix = "Dto"
+//	generateApiTests = false
+//	generateModelTests = false
+//	modelPackage = "org.openapi.example.model"
+//	configOptions = [
+//			dateLibrary: 'java8',
+//			interfaceOnly: 'true',
+//			skipDefaultInterface: 'true',
+//			useApiIgnore:'fales',
+//			swaggerAnnotations: 'true',
+//	]
+//	globalProperties = [
+//			modelDocs: 'false',
+//			apis: '',
+//			models: ''
+//	]
+//}
+
+task openApiGenerateJavaClient(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
+	inputSpec = "$rootDir/src/main/resources/openapi.json";
+	outputDir = "$rootDir/clients/java/"
+
+	generatorName = "java"
+
+	groupId = group
+
+	apiPackage = "bike.rapido.ingestion.gateway.client.api"
+	invokerPackage = "bike.rapido.ingestion.gateway.client.invoker"
+	modelPackage = "bike.rapido.ingestion.gateway.client.model"
+
+	configOptions = [
+			library        : "feign",
+			dateLibrary    : "java8",
+			artifactId     : "ingestion-gateway-client",
+			artifactVersion: project.version.toString(),
+	]
+}
+
+openApiGenerate {
+	generatorName = "typescript-axios"
+	inputSpec = "$rootDir/src/main/resources/openapi.json";
+	outputDir = "${buildDir}/frontend/src/app/client"
+}
+
+
+
+
+

@@ -1,0 +1,11 @@
+openapi: 3.0.3
+info:
+  description: Title
+  title: Title
+  version: 1.0.0
+servers:
+- url: https
+paths: {}
+components:
+  schemas: {}
+

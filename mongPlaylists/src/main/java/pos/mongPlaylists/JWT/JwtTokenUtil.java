@@ -11,7 +11,6 @@ import pos.mongPlaylists.Exceptions.JWTExceptions.IssuerNotKnown;
 
 import java.io.Serializable;
 
-
 @Component
 public class JwtTokenUtil implements Serializable {
     private Integer NO_MIN = 60;

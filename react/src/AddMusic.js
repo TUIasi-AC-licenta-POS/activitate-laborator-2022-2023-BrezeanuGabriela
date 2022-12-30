@@ -173,7 +173,7 @@ class AddMusic extends React.Component {
                     }
                     else if (xmlHttp.status === 403) {
                         console.log(xmlHttp.status);
-                        // reject("Forbidden");
+                        reject("Forbidden");
                     }
                     else if (xmlHttp.status === 401) {
                         console.log(xmlHttp.responseText);

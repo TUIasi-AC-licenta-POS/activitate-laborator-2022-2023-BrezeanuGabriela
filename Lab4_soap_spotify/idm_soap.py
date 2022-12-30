@@ -48,6 +48,8 @@ class UsersComplexType(ComplexModel):
         self.error = message
 
 class IDMService(ServiceBase):
+    # origin = "*"
+
     @rpc(String, String, String, String, _returns=String)
     def CreateUser(ctx, token, username, password, roles):
         id_user = create_user(token, username, password, roles)
@@ -115,8 +117,14 @@ class IDMService(ServiceBase):
         result = logout(token)
         return str(result)
 
-    # def on_method_return_object(ctx):
-    #     ctx.transport.resp_header['Acces-Control-Allow-Origin'] = ctx.descriptor.service_clas_origin
+# class CorsService(ServiceBase):
+#     origin = '*'
+
+
+# def _on_method_return_object(ctx):
+#     ctx.transport.resp_header['Acces-Control-Allow-Origin'] = ctx.descriptor.service_clas_origin
+#
+# IDMService.event_manager.add_listener('method_return_object', _on_method_return_object)
 
 application = Application([IDMService], 'services.spotify.idm.soap',
                           in_protocol=Soap11(validator='lxml'),

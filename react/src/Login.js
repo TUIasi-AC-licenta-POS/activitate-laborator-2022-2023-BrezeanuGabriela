@@ -75,6 +75,7 @@ class Login extends React.Component {
                     }
                 }
             }
+            // xmlHttp.setRequestHeader("Acces-Control-Allow-Origin", '*');
             xmlHttp.send(message);
         });
     }
@@ -85,30 +86,17 @@ class Login extends React.Component {
         let username = this.state.username;
         let password = this.state.password;
 
-        let message =
-                "<soap11env:Envelope xmlns:soap11env=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:sample=\"services.spotify.idm.soap\">" +
-                "<soap11env:Body>" +
-                "<sample:Login>" +
-                "<sample:username>" + username + "</sample:username>" +
-                "<sample:password>" + password + "</sample:password>" +
-                "</sample:Login>" +
-                "</soap11env:Body>" +
-                "</soap11env:Envelope>";
+        // let message =
+        //         "<soap11env:Envelope xmlns:soap11env=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:sample=\"services.spotify.idm.soap\">" +
+        //         "<soap11env:Body>" +
+        //         "<sample:Login>" +
+        //         "<sample:username>" + username + "</sample:username>" +
+        //         "<sample:password>" + password + "</sample:password>" +
+        //         "</sample:Login>" +
+        //         "</soap11env:Body>" +
+        //         "</soap11env:Envelope>";
 
 
-        // $.ajax({
-        //     url: 'http://127.0.0.1:8000', 
-        //     type: "POST",
-        //     dataType: "xml", 
-        //     data: message, 
-        //     // contentType: "text/xml; charset=\"utf-8\"",
-        //     success: function(response) {
-        //         console.log(response);
-        //     },
-        //     error: function(err) {
-        //         console.log(err);
-        //     }
-        // });
         this.makeSoapRequest(this.state.username, this.state.password)
             .then(
                 (res) => {

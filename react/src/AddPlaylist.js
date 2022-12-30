@@ -328,7 +328,7 @@ class AddPlaylist extends React.Component {
     }
 
     render() {
-        console.log(this.state);
+        // console.log(this.state);
         if (this.state.buttonPressed === "home") {
             return (
                 <Home token={this.props.token}
@@ -369,7 +369,7 @@ class AddPlaylist extends React.Component {
                 optionsSongs = optionsSongs.map((x) => ({ "value": x, "label": x }));
                 options.push(...optionsSongs);
             }
-            console.log(this.state);
+            // console.log(this.state);
 
             return (
                 <div className="App" >

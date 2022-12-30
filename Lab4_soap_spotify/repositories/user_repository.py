@@ -387,7 +387,7 @@ def get_user_with_token(token, username):
             user_admin = get_user_by_id(id_admin)
 
             if user_admin:
-                # verificam ca e admin pt a avea drept de delete user
+                # verificam ca e admin pt a avea drept de get user
                 if "administrator" in user_admin['roles']:
                     user = get_user(username)
                     if user:

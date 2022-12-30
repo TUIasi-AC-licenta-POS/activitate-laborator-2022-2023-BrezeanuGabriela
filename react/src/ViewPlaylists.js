@@ -209,6 +209,19 @@ class Viewplaylists extends React.Component {
                         }
                     </select>
                     <br></br>
+                    <table >
+                        <tr >
+                            <th> Name </th>
+                        </tr >
+                        {
+    
+                            options.map((item) => (
+                                <tr>
+                                    <td > {item.value} </td>
+                                </tr>
+                            ))
+                        }
+                    </table>
                     <p className="login_text"> Select a song from list to see more details:</p>
                     <select onChange={this.handleChange} className="login_text">
                         {
