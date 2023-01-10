@@ -29,7 +29,7 @@ class Viewartists extends React.Component {
                 }
             })
             .then((res) => {
-                console.log(res);
+                // console.log(res);
                 return res.json()
             })
             .then((json) => {
@@ -38,7 +38,7 @@ class Viewartists extends React.Component {
                 let artists = _embedded.artists;
                 let _links = json._links;
 
-                console.log(_links);
+                // console.log(_links);
                 this.setState({
                     items: artists,
                     isLoaded: true

@@ -207,6 +207,19 @@ class AddArtist extends React.Component {
         this.setState({ buttonPressed: message });
     }
 
+    getSnapshotBeforeUpdate(prevProps, prevState) {
+        return prevState;
+    }
+
+
+    shouldComponentUpdate(prevProps, prevState) {
+        // cererea de add s-a executat cu succes | a fost apasat butonul de back | status code 403 -> redirect pe login
+        if (prevState.artist != null || prevState.buttonPressed !== '' || prevState.errorMesage !== '') {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     render() {
         if (this.state.errorMesage === "Forbidden") {

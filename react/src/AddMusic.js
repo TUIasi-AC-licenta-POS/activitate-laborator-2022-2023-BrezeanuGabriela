@@ -230,7 +230,22 @@ class AddMusic extends React.Component {
         this.setState({ buttonPressed: message });
     }
 
+    getSnapshotBeforeUpdate(prevProps, prevState) {
+        return prevState;
+    }
+
+
+    shouldComponentUpdate(prevProps, prevState) {
+        // cererea de add s-a executat cu succes | a fost apasat butonul de back | status code 403 -> redirect pe login
+        if (prevState.buttonPressed !== '' || prevState.errorMesage !== '') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     render() {
+        console.log("render");
         if (this.state.errorMesage === "Forbidden") {
             // ar mai trebui apelata si metoda de log out pt invalidarea token-ului
             this.logout(this.props.token);

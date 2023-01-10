@@ -23,19 +23,19 @@ class Viewsongs extends React.Component {
 
     setPageNo(message) {
         if (message === "next") {
-            console.log(this.state.noPage);
+            // console.log(this.state.noPage);
             let noPage = this.state.noPage + 1;
-            console.log(noPage);
+            // console.log(noPage);
             this.setState({ noPage: noPage });
             // this.makeRestReq();
         }
         else if (message === "prev") {
             let noPage = this.state.noPage - 1;
-            console.log(this.state.noPage);
+            // console.log(this.state.noPage);
             if (noPage < 0)
                 alert("Sunteti deja pe prima pragina!");
             else {
-                console.log(noPage);
+                // console.log(noPage);
                 this.setState({ noPage: noPage });
                 // this.makeRestReq();
             }
@@ -46,15 +46,14 @@ class Viewsongs extends React.Component {
         return prevState;
       }
 
-    componentDidUpdate(prevState, snapshot)
+    componentDidUpdate(prevProps, prevState)
     {
-        console.log(snapshot);
-        if(snapshot.noPage != this.state.noPage)
+        if(prevState.noPage != this.state.noPage)
             this.makeRestReq();
     }
 
     makeRestReq() {
-        console.log("lalala   " + this.state.noPage);
+        // console.log("lalala   " + this.state.noPage);
         fetch(
             "http://localhost:8080/api/songcollection/songs/?page=" + this.state.noPage,
             {
@@ -68,16 +67,16 @@ class Viewsongs extends React.Component {
                 return res.json()
             })
             .then((json) => {
-                console.log(json);
+                // console.log(json);
 
                 // verificam ca am primit songs
                 if (json._embedded !== undefined) {
                     let _embedded = json._embedded;
                     let musics = _embedded.musics;
                     let _links = json._links;
-                    console.log(_embedded.musics);
+                    // console.log(_embedded.musics);
 
-                    console.log(_links);
+                    // console.log(_links);
                     this.setState({
                         items: musics,
                         isLoaded: true
@@ -143,8 +142,8 @@ class Viewsongs extends React.Component {
                     <br></br>
                     <p>Pagina {this.state.noPage}</p>
                     <br></br>
-                    <Button className="button" onClick={(e) => this.setPageNo("next")}>Next</Button>
                     <Button className="button" onClick={(e) => this.setPageNo("prev")}>Previous</Button>
+                    <Button className="button" onClick={(e) => this.setPageNo("next")}>Next</Button>
                     <Button className="button" onClick={(e) => this.setViewMusicDestination("home")}>Back</Button>
                 </div >
             );

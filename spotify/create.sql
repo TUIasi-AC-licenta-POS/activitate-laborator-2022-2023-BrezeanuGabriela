@@ -3911,3 +3911,10 @@ create table new_musicdto (id integer not null, genre integer, id_album integer,
 alter table music add constraint FKh9iddkjdbpyh7yvloeaoqpj9h foreign key (id) references music (id);
 alter table music_artists add constraint FKmkekkut8lg3x0q54j852avk4n foreign key (id_artist) references artists (uuid);
 alter table music_artists add constraint FKpywaxfvc86k041jvdr9jiate8 foreign key (id_music) references music (id);
+create table artists (uuid varchar(255) not null, active bit, name varchar(255), primary key (uuid)) engine=InnoDB;
+create table music (id integer not null auto_increment, genre varchar(255), id_album integer, name varchar(255), type varchar(255), year integer, primary key (id)) engine=InnoDB;
+create table music_artists (id_artist varchar(255) not null, id_music integer not null, primary key (id_artist, id_music)) engine=InnoDB;
+create table new_musicdto (id integer not null, genre integer, id_album integer, name varchar(255), type integer, year integer, primary key (id)) engine=InnoDB;
+alter table music add constraint FKh9iddkjdbpyh7yvloeaoqpj9h foreign key (id) references music (id);
+alter table music_artists add constraint FKmkekkut8lg3x0q54j852avk4n foreign key (id_artist) references artists (uuid);
+alter table music_artists add constraint FKpywaxfvc86k041jvdr9jiate8 foreign key (id_music) references music (id);

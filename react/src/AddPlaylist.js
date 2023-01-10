@@ -412,6 +412,8 @@ class AddPlaylist extends React.Component {
                                 ))
                             }
                         </select>
+                        <br></br>
+                        <p>Selected songs:</p>
                         <pre id="selectedSongs" className="login_text"></pre>
                         <input className="login_text" type="submit" value="Add playlist"></input>
                     </form>

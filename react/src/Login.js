@@ -1,7 +1,6 @@
 import React from 'react';
 import Home from "./Home";
 import './index.css';
-import $ from 'jquery'; 
 
 class Login extends React.Component {
     constructor(props) {
@@ -58,13 +57,14 @@ class Login extends React.Component {
                         var xml = new XMLParser().parseFromString(xmlHttp.responseText);
                         let response = xml.children[0].children[0].children[0];
                         responseMessage = response.value;
+                        // s-a primit token-ul
                         if (responseMessage.split("Error:").length === 1) {
                             resolve(responseMessage);
                         }
                         else {
                             document.getElementById("login_username").value = "";
                             document.getElementById("login_password").value = "";
-                            
+
                             reject(responseMessage.split("Error:")[1]);
                         }
                     }
@@ -75,41 +75,40 @@ class Login extends React.Component {
                     }
                 }
             }
-            // xmlHttp.setRequestHeader("Acces-Control-Allow-Origin", '*');
             xmlHttp.send(message);
         });
     }
 
+    getSnapshotBeforeUpdate(prevProps, prevState) {
+        return prevState;
+    }
+
+
+    shouldComponentUpdate(prevProps, prevState) {
+        // se face update doar daca s-a primit raspunsul de la soap si s-a setat token-ul sau un mesaj de eroare
+        if (prevState.token !== '' || prevState.errorMesage !== '') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     async requestLoginToken(event) {
         event.preventDefault();
-        
-        let username = this.state.username;
-        let password = this.state.password;
-
-        // let message =
-        //         "<soap11env:Envelope xmlns:soap11env=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:sample=\"services.spotify.idm.soap\">" +
-        //         "<soap11env:Body>" +
-        //         "<sample:Login>" +
-        //         "<sample:username>" + username + "</sample:username>" +
-        //         "<sample:password>" + password + "</sample:password>" +
-        //         "</sample:Login>" +
-        //         "</soap11env:Body>" +
-        //         "</soap11env:Envelope>";
-
 
         this.makeSoapRequest(this.state.username, this.state.password)
             .then(
                 (res) => {
                     this.setToken(res);
                 }
-            ).catch( err => {
-                this.setState({errorMesage : err});
+            ).catch(err => {
+                this.setState({ errorMesage: err });
             });
     }
 
     setToken(responseMessage) {
         this.setState({ token: responseMessage.split("#")[0] });
-        this.setState({ id: parseInt(responseMessage.split("#")[1])});
+        this.setState({ id: parseInt(responseMessage.split("#")[1]) });
         this.setState({ tokenReceived: true });
     }
 
@@ -129,11 +128,11 @@ class Login extends React.Component {
             );
         }
         else {
-            return (<Home   token={this.state.token}
-                            username={this.state.username}
-                            password={this.state.password} 
-                            id={this.state.id}
-                    />);
+            return (<Home token={this.state.token}
+                username={this.state.username}
+                password={this.state.password}
+                id={this.state.id}
+            />);
         }
     }
 }
