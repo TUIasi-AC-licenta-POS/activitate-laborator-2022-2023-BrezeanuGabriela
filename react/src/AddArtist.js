@@ -196,6 +196,8 @@ class AddArtist extends React.Component {
                 console.log(err);
                 if (err.includes("Forbidden")) {
                     this.setState({ errorMesage: "Forbidden" });
+                     // se apeleaza logout pt invalidarea token-ului
+                    this.logout(this.state.token);
                 }
                 else {
                     this.requestLoginToken();
@@ -223,8 +225,6 @@ class AddArtist extends React.Component {
 
     render() {
         if (this.state.errorMesage === "Forbidden") {
-            // se apeleaza logout pt invalidarea token-ului
-            this.logout(this.props.token);
             return (
                 <Login />
             );

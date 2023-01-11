@@ -19,6 +19,7 @@ import pos.mongPlaylists.Service.ProfileService.ProfileService;
 import pos.mongPlaylists.SoapClient.ClientForSoap;
 import pos.mongPlaylists.View.DTO.OutputProfileDTO;
 import pos.mongPlaylists.View.DTO.ProfileDTO;
+import pos.mongPlaylists.View.Hateoas.SubPlaylistForDelete;
 import pos.mongPlaylists.View.Hateoas.SubPlaylistHateoas;
 
 import javax.xml.bind.JAXBException;
@@ -38,6 +39,9 @@ public class ProfileController {
 
     @Autowired
     SubPlaylistHateoas subPlaylistHateoas;
+
+    @Autowired
+    SubPlaylistForDelete subPlaylistForDelete;
 
     @Autowired
     public JwtTokenUtil jwtTokenUtil;
@@ -68,6 +72,7 @@ public class ProfileController {
 
         return EntityModel.of(outputProfileDTO, selfLink, parent);
     }
+
 
     @GetMapping(value="/api/profiles/")
     public ResponseEntity<?> getAllProfiles()
@@ -574,7 +579,7 @@ public class ProfileController {
             List<EntityModel<SubPlaylistPOJO>> listSubPlaylists = profilePOJO.getPlaylists()
                     .stream()
                     .map(p -> new SubPlaylistPOJO(p.getId(), p.getName()))
-                    .map(subPlaylistHateoas::toModel)
+                    .map(subPlaylistForDelete::toModel)
                     .collect(Collectors.toList());
 
             outputProfileDTO.setListSubPlaylist(listSubPlaylists);

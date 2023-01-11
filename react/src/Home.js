@@ -10,6 +10,7 @@ import AddMusic from './AddMusic';
 import AddProfile from './AddProfile';
 import Viewplaylists from './ViewPlaylists';
 import AddPlaylist from './AddPlaylist';
+import AddUser from './AddUser';
 
 class Home extends React.Component {
     constructor(props) {
@@ -19,8 +20,8 @@ class Home extends React.Component {
             buttonPressed: "",
             roles: []
         };
-        console.log(props);
-        console.log(this.state);
+        // console.log(props);
+        // console.log(this.state);
     }
 
     logout(token) {
@@ -123,10 +124,21 @@ class Home extends React.Component {
     }
 
     render() {
-        // console.log(this.state.buttonPressed);
         if(this.state.buttonPressed === "") 
         {
-            if((this.state.roles.length === 1 && this.state.roles[0] === "client") ||
+            if(this.state.roles.includes("administrator")) {
+                return (
+                    <div>
+                        <h3> Home </h3>
+                        <Button className="button" title="Add User" onClick={(e) => this.setViewMusicDestination("addUser")}>Add User</Button>
+                        <br></br>
+                        <Button className="button" onClick={(e) => this.logoutCbk()}>Log Out</Button>
+                    </div>
+                    );
+            }
+
+            // daca e client normal
+            else if((this.state.roles.length === 1 && this.state.roles[0] === "client") ||
                 !this.state.roles.includes("content_manager")) {
                 return (
                     <div>
@@ -146,22 +158,17 @@ class Home extends React.Component {
                     );
             }
 
+            // daca e content manager
             return (
             <div>
                 <h3> Home </h3>
                 <Button className="button" title="View music" onClick={(e) => this.setViewMusicDestination("viewMusic")}>View Music</Button>
                 <br></br>
+                <Button className="button" title="Add song/album" onClick={(e) => this.setViewMusicDestination("addMusic")}>Add music</Button>
+                <br></br>
                 <Button className="button" title="Add an artist" onClick={(e) => this.setViewMusicDestination("addAnArtist")}>Add/Update an artist</Button>
                 <br></br>
                 <Button className="button" title="View artists" onClick={(e) => this.setViewMusicDestination("viewArtists")}>View Artists</Button>
-                <br></br>
-                <Button className="button" title="Add song/album" onClick={(e) => this.setViewMusicDestination("addMusic")}>Add music</Button>
-                <br></br>
-                <Button className="button" title="Add profile" onClick={(e) => this.setViewMusicDestination("addProfile")}>Add profile</Button>
-                <br></br>
-                <Button className="button" title="Add playlist" onClick={(e) => this.setViewMusicDestination("addPlaylist")}>Add playlist</Button>
-                <br></br>
-                <Button className="button" title="View playlists" onClick={(e) => this.setViewMusicDestination("viewPlaylists")}>View playlists</Button>
                 <br></br>
                 <Button className="button" onClick={(e) => this.logoutCbk()}>Log Out</Button>
             </div>
@@ -198,6 +205,15 @@ class Home extends React.Component {
         {
             return (
                 <AddProfile token={this.state.loginToken}
+                            username={this.props.username}
+                            password={this.props.password} 
+                            id={this.props.id}/>
+            );
+        }
+        else if(this.state.buttonPressed === "addUser")
+        {
+            return (
+                <AddUser token={this.state.loginToken}
                             username={this.props.username}
                             password={this.props.password} 
                             id={this.props.id}/>

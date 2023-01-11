@@ -48,7 +48,13 @@ public class MusicController {
     private final IMusic musicService;
 
     @Autowired
+    private MusicHateoasComplete musicHateoasComplete;
+
+    @Autowired
     private MusicHateoasVerySimple musicHateoasVerySimple;
+
+    @Autowired
+    private MusicHateoasDelete musicHateoasDelete;
 
     @Autowired
     private ArtistHateoasSimple artistHateoasSimple;
@@ -283,7 +289,7 @@ public class MusicController {
                 // s-a inserat cu succes
                 HttpHeaders headers = new HttpHeaders();
                 headers.add("Content-Location", String.format("http://localhost:8080/api/songcollection/songs/%s", createdMusic.getId()));
-                return new ResponseEntity<>(new MusicHateoasComplete().toModel(createdMusic), headers, HttpStatus.CREATED);
+                return new ResponseEntity<>(musicHateoasComplete.toModel(createdMusic), headers, HttpStatus.CREATED);
 
             }catch (RuntimeException runtimeException)
             {
@@ -556,37 +562,7 @@ public class MusicController {
 
             musicService.deleteMusicById(id);
 
-            if(music.getIdAlbum() != null)
-            {
-                MusicWithAlbumSongsDTO musicWithAlbumSongsDTO = new MusicWithAlbumSongsDTO(music);
-                List<EntityModel<SimpleMusicDTO>> listMusic = music.getAlbumSongs()
-                        .stream()
-                        .map(m -> new SimpleMusicDTO(m.getId(), m.getName(), m.getGenre()))
-                        .map(musicHateoasVerySimple::toModel)
-                        .collect(Collectors.toList());
-                musicWithAlbumSongsDTO.setAlbumSongs(listMusic);
-
-                // set hateoas for album
-                musicWithAlbumSongsDTO.setAlbum(
-                        musicHateoasVerySimple.toModel(
-                                new SimpleMusicDTO(music.getId(),music.getAlbum().getName(), music.getGenre())
-                        )
-                );
-
-                // set hateoas for artist
-                if(!music.getArtists().isEmpty()) {
-                    for (Artist artist : music.getArtists()) {
-                        music.addArtist(artist);
-                        musicWithAlbumSongsDTO.addArtist(artistHateoasSimple.toModel(artist));
-                    }
-                }
-                return new ResponseEntity<>(new MusicHateoasMultipleDetailsComp().toModel(musicWithAlbumSongsDTO), HttpStatus.OK);
-            }
-            // este album/single
-            else
-            {
-                return new ResponseEntity<>(new MusicHateoasSimple().toModel(music), HttpStatus.OK);
-            }
+            return new ResponseEntity<>(musicHateoasDelete.toModel(music), HttpStatus.OK);
         }catch (MusicIdDoesNotExist musicNotFound)
         {
             return new ResponseEntity<>(musicNotFound.getMessage(), HttpStatus.NOT_FOUND);

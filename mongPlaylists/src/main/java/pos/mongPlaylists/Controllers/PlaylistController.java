@@ -59,6 +59,22 @@ public class PlaylistController {
         return EntityModel.of(outputPlaylistDTO, selfLink, parent);
     }
 
+    public EntityModel<OutputPlaylistDTO> playlistPOJOtoDTOForDelete(PlaylistPOJO playlistPOJO)
+    {
+        OutputPlaylistDTO outputPlaylistDTO = new OutputPlaylistDTO(playlistPOJO.getIdUser(), playlistPOJO.getPlaylistName(), playlistPOJO.getSongs());
+        if(playlistPOJO.getVisibility() != null)
+        {
+            outputPlaylistDTO.setVisibility(playlistPOJO.getVisibility());
+        }
+        Map<String, String> headers = null;
+
+        Link parent = linkTo(methodOn(PlaylistController.class)
+                .getAllPlaylists())
+                .withRel("parent");
+
+        return EntityModel.of(outputPlaylistDTO, parent);
+    }
+
     @GetMapping(value="/api/playlists/")
     public ResponseEntity<?> getAllPlaylists()
     {
@@ -571,17 +587,7 @@ public class PlaylistController {
 
             playlistPOJO = playlistService.deletePlaylistById(idPlaylist);
 
-            OutputPlaylistDTO outputPlaylistDTO = new OutputPlaylistDTO(playlistPOJO.getIdUser(), playlistPOJO.getPlaylistName(), playlistPOJO.getSongs());
-            if(playlistPOJO.getVisibility() != null)
-            {
-                outputPlaylistDTO.setVisibility(playlistPOJO.getVisibility());
-            }
-
-            Link parent = linkTo(methodOn(PlaylistController.class)
-                    .getAllPlaylists())
-                    .withRel("parent");
-
-            return new ResponseEntity<>(EntityModel.of(outputPlaylistDTO, parent), HttpStatus.OK);
+            return new ResponseEntity<>(playlistPOJOtoDTOForDelete(playlistPOJO), HttpStatus.OK);
         }
         catch (PlaylistNotFound playlistNotFound)
         {

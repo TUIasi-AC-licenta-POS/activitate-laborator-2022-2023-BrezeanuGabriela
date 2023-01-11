@@ -146,7 +146,7 @@ class Viewplaylists extends React.Component {
         if (!this.state.isLoaded) {
             return (
                 <>
-                    <p> Asteptati sa se incarce piesele. </p>
+                    <p> Asteptati sa se incarce playlist-urile. </p>
                     <Button className="button" onClick={(e) => this.setViewMusicDestination("home")}>Back</Button>
                 </>
             )

@@ -211,14 +211,16 @@ class AddMusic extends React.Component {
             .then(
                 (res) => {
                     console.log(res);
-                    if(res === 201 || res === 204)
-                    this.setState({buttonPressed: "viewSongs"});
+                    if (res === 201 || res === 204)
+                        this.setState({ buttonPressed: "viewSongs" });
                 }
             )
             .catch((err) => {
                 console.log(err);
                 if (err.includes("Forbidden")) {
                     this.setState({ errorMesage: "Forbidden" });
+                    // ar mai trebui apelata si metoda de log out pt invalidarea token-ului
+                    this.logout(this.state.token);
                 }
                 else {
                     this.requestLoginToken();
@@ -247,8 +249,6 @@ class AddMusic extends React.Component {
     render() {
         console.log("render");
         if (this.state.errorMesage === "Forbidden") {
-            // ar mai trebui apelata si metoda de log out pt invalidarea token-ului
-            this.logout(this.props.token);
             return (
                 <Login />
             );
@@ -261,7 +261,7 @@ class AddMusic extends React.Component {
                     id={this.props.id} />
             );
         }
-        else if(this.state.buttonPressed === "viewSongs") {
+        else if (this.state.buttonPressed === "viewSongs") {
             return (
                 <Viewsongs token={this.state.token}
                     username={this.props.username}

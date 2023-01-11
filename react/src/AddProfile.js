@@ -165,7 +165,7 @@ class AddProfile extends React.Component {
                     }
                     else if (xmlHttp.status === 403) {
                         console.log(xmlHttp.status);
-                        // reject("Forbidden");
+                        reject("Forbidden");
                     }
                     // il las tot pe user tot pe form pentru a-si corecta datele
                     else if (xmlHttp.status === 409) {
@@ -204,6 +204,8 @@ class AddProfile extends React.Component {
                 console.log(err);
                 if (err.includes("Forbidden")) {
                     this.setState({ errorMesage: "Forbidden" });
+                    // ar mai trebui apelata si metoda de log out pt invalidarea token-ului
+                    this.logout(this.state.token);
                 }
                 else {
                     this.requestLoginToken();
@@ -226,10 +228,8 @@ class AddProfile extends React.Component {
     }
 
     render() {
-        console.log("render");
+        // console.log("render");
         if (this.state.errorMesage === "Forbidden") {
-            // ar mai trebui apelata si metoda de log out pt invalidarea token-ului
-            this.logout(this.state.token);
             return (
                 <Login />
             );

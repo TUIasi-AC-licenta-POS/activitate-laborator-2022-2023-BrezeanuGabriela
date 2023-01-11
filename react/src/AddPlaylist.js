@@ -152,14 +152,14 @@ class AddPlaylist extends React.Component {
                 (res) => {
                     let profile = JSON.parse(res);
                     let idProfile = profile._links.self.href.split("?")[0].split("/").at(-1);
-                    this.setState({ idProfile: idProfile});
+                    this.setState({ idProfile: idProfile });
                 }
             )
             // profilul nu exista
             .catch((err) => {
                 console.log(err);
                 alert("Nu aveti un profile asociat! Veti fi redirectat catre pagina pentru crearea unui profile!");
-                this.setState({errorMesage: "Profile does not exist!"});
+                this.setState({ errorMesage: "Profile does not exist!" });
             });
     }
 
@@ -182,7 +182,7 @@ class AddPlaylist extends React.Component {
             if (value !== "") {
                 let selectedSongsName = this.state.selectedSongsName;
                 selectedSongsName.push(value);
-                this.setState( {selectedSongsName: selectedSongsName});
+                this.setState({ selectedSongsName: selectedSongsName });
 
                 document.getElementById("selectedSongs").innerText = selectedSongsName;
 
@@ -306,20 +306,22 @@ class AddPlaylist extends React.Component {
 
                     // s-a inserat playlist-ul cu succes -> il asociem profile-ului
                     this.makeAddPlaylistToProfileRequest(this.state.idProfile, idPlaylist, this.state.token)
-                    .then(
-                        (res) => {
-                            console.log(res);
-                        }
-                    )
-                    .catch( (err) => {
-                        console.log(err);
-                    });
+                        .then(
+                            (res) => {
+                                console.log(res);
+                            }
+                        )
+                        .catch((err) => {
+                            console.log(err);
+                        });
                 }
             )
             .catch((err) => {
                 console.log(err);
                 if (err.includes("Forbidden")) {
                     this.setState({ errorMesage: "Forbidden" });
+                    // se apeleaza logout pt invalidarea token-ului
+                    this.logout(this.state.token);
                 }
                 else {
                     this.requestLoginToken();
@@ -345,18 +347,15 @@ class AddPlaylist extends React.Component {
                 </>
             )
         }
-        else if (this.state.errorMesage === "Profile does not exist!")
-        {
+        else if (this.state.errorMesage === "Profile does not exist!") {
             return (
                 <AddProfile token={this.state.token}
-                            username={this.props.username}
-                            password={this.props.password} 
-                            id={this.props.id}/>
+                    username={this.props.username}
+                    password={this.props.password}
+                    id={this.props.id} />
             );
         }
         else if (this.state.errorMesage === "Forbidden") {
-            // se apeleaza logout pt invalidarea token-ului
-            this.logout(this.props.token);
             return (
                 <Login />
             );

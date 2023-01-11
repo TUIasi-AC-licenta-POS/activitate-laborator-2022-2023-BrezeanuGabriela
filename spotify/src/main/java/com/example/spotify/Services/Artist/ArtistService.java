@@ -13,10 +13,7 @@ import com.example.spotify.Model.MusicArtists.MusicArtistIds;
 import com.example.spotify.Model.MusicArtists.MusicArtistRepository;
 import com.example.spotify.View.DTOs.ArtistSongsDTO;
 import com.example.spotify.View.DTOs.SimpleMusicWithTypeDTO;
-import com.example.spotify.View.Hateoas.ArtistHateoasSimple;
-import com.example.spotify.View.Hateoas.ArtistSongsHateoasSimple;
-import com.example.spotify.View.Hateoas.MusicHateoasVerySimple;
-import com.example.spotify.View.Hateoas.MusicTypeHateoasSimple;
+import com.example.spotify.View.Hateoas.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.hateoas.CollectionModel;
@@ -44,10 +41,10 @@ public class ArtistService implements IArtist{
     private MusicRepository musicRepository;
 
     @Autowired
-    private ArtistHateoasSimple artistDTO;
+    private ArtistHateoasSimple artistHateoasSimple;
 
     @Autowired
-    private ArtistSongsHateoasSimple artistHateoasSimple;
+    private ArtistHateoasDelete artistHateoasDelete;
 
     @Autowired
     private MusicTypeHateoasSimple musicHateoasVerySimple;
@@ -60,7 +57,7 @@ public class ArtistService implements IArtist{
     @Override
     public CollectionModel<EntityModel<Artist>> getAllArtists()
     {
-        List<EntityModel<Artist>> listArtists = artistRepository.findAll().stream().map(artistDTO::toModel).collect(Collectors.toList());
+        List<EntityModel<Artist>> listArtists = artistRepository.findAll().stream().map(artistHateoasSimple::toModel).collect(Collectors.toList());
         Link selfLink = linkTo(methodOn(ArtistController.class).getAllArtists(Optional.empty(), Optional.empty())).withSelfRel();
         CollectionModel<EntityModel<Artist>> result = CollectionModel.of(listArtists, selfLink);
 
@@ -72,7 +69,7 @@ public class ArtistService implements IArtist{
     {
         Artist artist = artistRepository.findArtistByUuid(uuid);
         if(artist != null)
-            return artistDTO.toModel(artist);
+            return artistHateoasSimple.toModel(artist);
         else
             throw new ArtistNotFound(uuid);
     }
@@ -151,7 +148,7 @@ public class ArtistService implements IArtist{
         }
 
         artist = artistRepository.findArtistByUuid(artist.getUuid());
-        return artistDTO.toModel(artist);
+        return artistHateoasSimple.toModel(artist);
     }
 
     @Override
@@ -184,7 +181,7 @@ public class ArtistService implements IArtist{
 
         artist = artistRepository.findArtistByUuid(artist.getUuid());
 
-        return artistDTO.toModel(artist);
+        return artistHateoasSimple.toModel(artist);
     }
 
     @Override
@@ -192,7 +189,7 @@ public class ArtistService implements IArtist{
     {
         Artist artist = artistRepository.findArtistByUuid(uuid);
         if(artist != null) {
-            EntityModel deletedArtist = artistDTO.toModel(artist);
+            EntityModel deletedArtist = artistHateoasDelete.toModel(artist);
             try {
                 artistRepository.deleteArtistByUuid(artist.getUuid());
                 return deletedArtist;
