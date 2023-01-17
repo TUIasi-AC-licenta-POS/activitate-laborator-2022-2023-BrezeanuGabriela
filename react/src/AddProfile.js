@@ -1,7 +1,8 @@
 import React from 'react';
 import Button from 'react-bootstrap/Button';
-import Login from './Login';
+import Forbidden from './Forbidden';
 import Home from './Home';
+import Login from './Login';
 
 class AddProfile extends React.Component {
     constructor(props) {
@@ -162,6 +163,9 @@ class AddProfile extends React.Component {
                         if (xmlHttp.responseText.includes("token login")) {
                             reject("Expired");
                         }
+                        else {
+                            reject("Invalid");
+                        }
                     }
                     else if (xmlHttp.status === 403) {
                         console.log(xmlHttp.status);
@@ -196,6 +200,7 @@ class AddProfile extends React.Component {
             .then(
                 (res) => {
                     console.log(res);
+                    // daca as dori un redirect
                     // if(res === 201 || res === 204)
                     // this.setState({buttonPressed: "viewSongs"});
                 }
@@ -207,8 +212,11 @@ class AddProfile extends React.Component {
                     // ar mai trebui apelata si metoda de log out pt invalidarea token-ului
                     this.logout(this.state.token);
                 }
-                else {
+                else if(err.includes("Expired")){
                     this.requestLoginToken();
+                }
+                else if(err.includes("Invalid")) {
+                    this.setState({ errorMesage: "Invalid"});
                 }
             })
     }
@@ -230,6 +238,11 @@ class AddProfile extends React.Component {
     render() {
         // console.log("render");
         if (this.state.errorMesage === "Forbidden") {
+            return (
+                <Forbidden />
+            );
+        }
+        else if (this.state.errorMesage === "Invalid") {
             return (
                 <Login />
             );

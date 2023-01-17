@@ -1,9 +1,10 @@
 import React from 'react';
 import Home from "./Home";
 import './index.css';
-import Login from './Login';
+import Forbidden from './Login';
 import Button from 'react-bootstrap/Button';
 import AddProfile from './AddProfile';
+import Login from './Login';
 
 class AddPlaylist extends React.Component {
     constructor(props) {
@@ -282,6 +283,9 @@ class AddPlaylist extends React.Component {
                         if (xmlHttp.responseText.includes("token login")) {
                             reject("Expired");
                         }
+                        else {
+                            reject("Invalid");
+                        }
                     }
                     else {
                         alert(xmlHttp.status + " - " + xmlHttp.responseText);
@@ -323,8 +327,11 @@ class AddPlaylist extends React.Component {
                     // se apeleaza logout pt invalidarea token-ului
                     this.logout(this.state.token);
                 }
-                else {
+                else if(err.includes("Expired")){
                     this.requestLoginToken();
+                }
+                else if(err.includes("Invalid")) {
+                    this.setState({ errorMesage: "Invalid"});
                 }
             });
     }
@@ -356,6 +363,11 @@ class AddPlaylist extends React.Component {
             );
         }
         else if (this.state.errorMesage === "Forbidden") {
+            return (
+                <Forbidden />
+            );
+        }
+        else if (this.state.errorMesage === "Invalid") {
             return (
                 <Login />
             );

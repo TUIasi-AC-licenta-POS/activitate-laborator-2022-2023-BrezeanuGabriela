@@ -16,7 +16,7 @@ HEADER = {
 }
 ISS = "http://127.0.0.1:8000"
 KEY = "secret"
-BLACKLIST_PATH = "/home/gabriela/an4/POS/proiect-v2/POS/Lab4_soap_spotify/blacklist.txt"
+BLACKLIST_PATH = "blacklist.txt"
 
 def read_blacklist():
     with open(BLACKLIST_PATH, "r") as blacklist_file_input:

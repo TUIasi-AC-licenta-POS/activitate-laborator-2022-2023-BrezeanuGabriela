@@ -1,9 +1,10 @@
 import React from 'react';
 import Home from "./Home";
 import './index.css';
-import Login from './Login';
 import Button from 'react-bootstrap/Button';
 import Viewsongs from './ViewSongs';
+import Forbidden from './Forbidden';
+import Login from './Login';
 
 class AddMusic extends React.Component {
     constructor(props) {
@@ -44,11 +45,10 @@ class AddMusic extends React.Component {
             "</soap11env:Body>" +
             "</soap11env:Envelope>";
 
-        // let responseMessage;
         xmlHttp.onreadystatechange = function () {
             if (xmlHttp.readyState === 4) {
                 if (xmlHttp.status === 200) {
-                    alert("Veti fi redirectat catre Login");
+                    // alert("Veti fi redirectat catre Login");
                 }
             }
         }
@@ -181,6 +181,9 @@ class AddMusic extends React.Component {
                         if (xmlHttp.responseText.includes("token login")) {
                             reject("Expired");
                         }
+                        else {
+                            reject("Invalid");
+                        }
                     }
                     // il las tot pe user tot pe form pentru a-si corecta datele
                     else if (xmlHttp.status === 409) {
@@ -222,8 +225,11 @@ class AddMusic extends React.Component {
                     // ar mai trebui apelata si metoda de log out pt invalidarea token-ului
                     this.logout(this.state.token);
                 }
-                else {
+                else if(err.includes("Expired")){
                     this.requestLoginToken();
+                }
+                else if(err.includes("Invalid")) {
+                    this.setState({ errorMesage: "Invalid"});
                 }
             })
     }
@@ -249,6 +255,11 @@ class AddMusic extends React.Component {
     render() {
         console.log("render");
         if (this.state.errorMesage === "Forbidden") {
+            return (
+                <Forbidden />
+            );
+        }
+        else if (this.state.errorMesage === "Invalid") {
             return (
                 <Login />
             );

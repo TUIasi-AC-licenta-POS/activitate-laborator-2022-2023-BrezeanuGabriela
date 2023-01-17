@@ -4,6 +4,7 @@ import './index.css';
 import Login from './Login';
 import Button from 'react-bootstrap/Button';
 import Viewartists from './ViewArtists';
+import Forbidden from './Forbidden';
 
 class AddArtist extends React.Component {
     constructor(props) {
@@ -43,7 +44,7 @@ class AddArtist extends React.Component {
         xmlHttp.onreadystatechange = function () {
             if (xmlHttp.readyState === 4) {
                 if (xmlHttp.status === 200) {
-                    alert("Veti fi redirectat catre Login");
+                    // alert("Veti fi redirectat catre Login");
                 }
             }
         }
@@ -169,6 +170,9 @@ class AddArtist extends React.Component {
                         if (xmlHttp.responseText.includes("token login")) {
                             reject("Expired");
                         }
+                        else {
+                            reject("Invalid");
+                        }
                     }
                     else {
                         alert(xmlHttp.status + " - " + xmlHttp.responseText);
@@ -199,8 +203,11 @@ class AddArtist extends React.Component {
                      // se apeleaza logout pt invalidarea token-ului
                     this.logout(this.state.token);
                 }
-                else {
+                else if(err.includes("Expired")){
                     this.requestLoginToken();
+                }
+                else if(err.includes("Invalid")) {
+                    this.setState({ errorMesage: "Invalid"});
                 }
             })
     }
@@ -225,6 +232,11 @@ class AddArtist extends React.Component {
 
     render() {
         if (this.state.errorMesage === "Forbidden") {
+            return (
+                <Forbidden />
+            );
+        }
+        else if (this.state.errorMesage === "Invalid") {
             return (
                 <Login />
             );

@@ -1,7 +1,7 @@
 import React from 'react';
 import Home from "./Home";
-import Login from './Login';
 import './index.css';
+import Forbidden from './Forbidden';
 
 class AddUser extends React.Component {
     constructor(props) {
@@ -142,7 +142,6 @@ class AddUser extends React.Component {
                 if(err === "fara drept")
                 {
                     this.setState({ errorMesage: "Forbidden" });
-                    alert("Veti fi redirectat care Login");
                     this.logout(this.state.token);
                 }
             });
@@ -156,7 +155,7 @@ class AddUser extends React.Component {
         if(this.state.errorMesage === "Forbidden")
         {
             return (
-                <Login />
+                <Forbidden />
             );
         }
 
