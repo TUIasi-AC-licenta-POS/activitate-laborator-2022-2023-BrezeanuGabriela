@@ -3,6 +3,7 @@ package com.example.spotify.Services.Artist;
 import com.example.spotify.Controller.ArtistController;
 import com.example.spotify.Exceptions.ArtistAlreadyExists;
 import com.example.spotify.Exceptions.ArtistNotFound;
+import com.example.spotify.Exceptions.ArtistUuidException;
 import com.example.spotify.Exceptions.JPAException;
 import com.example.spotify.Model.Artist.Artist;
 import com.example.spotify.Model.Artist.ArtistRepository;

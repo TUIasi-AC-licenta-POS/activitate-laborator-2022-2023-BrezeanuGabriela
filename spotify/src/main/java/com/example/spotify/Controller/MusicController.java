@@ -22,16 +22,18 @@ import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import javax.xml.bind.JAXBException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
@@ -60,6 +62,9 @@ public class MusicController {
     private ArtistHateoasSimple artistHateoasSimple;
 
     @Autowired
+    private ArtistJustWithParentHateoas artistJustWithParentHateoas;
+
+    @Autowired
     public JwtTokenUtil jwtTokenUtil;
 
     @Autowired
@@ -83,22 +88,65 @@ public class MusicController {
         try{
             if(page.isPresent())
             {
-                return new ResponseEntity<>(musicService.getMusicByNoPage(page.get(), items_per_page), HttpStatus.OK);
+                if (page.get() < 0)
+                {
+                    Link nextLink = linkTo(methodOn(MusicController.class).
+                            getAllMusic(Optional.of(0), items_per_page, Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()))
+                            .withRel("next");
+                    Link parent = WebMvcLinkBuilder.linkTo(methodOn(MusicController.class).getAllMusic(Optional.empty(),Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty())).withRel("parent");
+
+                    ArrayList<Link> array = new ArrayList<>();
+                    array.add(parent);
+                    array.add(nextLink);
+
+                    Map<String, ArrayList<Link>> links = new HashMap<>();
+                    links.put("_links", array);
+
+                    return new ResponseEntity<>(links, HttpStatus.NOT_FOUND);
+                }
+
+                CollectionModel<EntityModel<Music>> result = musicService.getMusicByNoPage(page.get(), items_per_page);
+
+                // nu exista elemente pe pagina respectiva
+                if(result.getContent().isEmpty())
+                {
+                    return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+                }
+
+                return new ResponseEntity<>(result, HttpStatus.OK);
             }
 
             if(name.isPresent())
             {
-                return new ResponseEntity<>(musicService.getMusicByName(name.get(), match), HttpStatus.OK);
+                CollectionModel<EntityModel<Music>> result = musicService.getMusicByName(name.get(), match);
+                if(result.getContent().isEmpty())
+                {
+                    return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+                }
+
+                return new ResponseEntity<>(result, HttpStatus.OK);
             }
 
             if(year.isPresent())
             {
-                return new ResponseEntity<>(musicService.getMusicByYear(year.get()), HttpStatus.OK);
+                CollectionModel<EntityModel<Music>> result = musicService.getMusicByYear(year.get());
+                if(result.getContent().isEmpty())
+                {
+                    return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+                }
+                
+                return new ResponseEntity<>(result, HttpStatus.OK);
             }
 
             if(genre.isPresent())
             {
-                return new ResponseEntity<>(musicService.getMusicByGenre(genre.get()), HttpStatus.OK);
+                CollectionModel<EntityModel<Music>> result = musicService.getMusicByGenre(genre.get());
+                if(result.getContent().isEmpty())
+                {
+                    return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+                }
+
+                return new ResponseEntity<>(result, HttpStatus.OK);
             }
 
             /// cazult default fara query param
@@ -114,6 +162,7 @@ public class MusicController {
         }
         catch (RuntimeException runtimeException)
         {
+
             return new ResponseEntity<>(runtimeException.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
@@ -169,7 +218,16 @@ public class MusicController {
 
         }catch (MusicIdDoesNotExist musicIdDoesNotExist)
         {
-            return new ResponseEntity<String>(musicIdDoesNotExist.getMessage(), HttpStatus.NOT_FOUND);
+            // de demo pentru a demonstra cum se retuneaza link-ul pe parinte in cazul in care resursa subordonata nu a fost gasita
+            // "in rest" nu am mai modificat pentru ca s-ar duce toata logica deja creata la React... sorry, am aflat prea tarziu de Hateoas si pe erori :(
+            Link parent = WebMvcLinkBuilder.linkTo(methodOn(MusicController.class).getAllMusic(Optional.empty(),Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty())).withRel("parent");
+            ArrayList<Link> array = new ArrayList<>();
+            array.add(parent);
+
+            Map<String, ArrayList<Link>> links = new HashMap<>();
+            links.put("_links", array);
+
+            return new ResponseEntity<>(links, HttpStatus.NOT_FOUND);
         }
     }
 
@@ -177,10 +235,23 @@ public class MusicController {
     public ResponseEntity<?> getMusicByArtistUuid(@PathVariable final String artistUuid)
     {
         try{
-            return new ResponseEntity<>(musicService.getMusicByArtistUuid(artistUuid), HttpStatus.OK);
+            CollectionModel<EntityModel<Music>> result = musicService.getMusicByArtistUuid(artistUuid);
+
+            // artist-ul nu are songs
+            if(result.getContent().isEmpty())
+                return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+
+            return new ResponseEntity<>(result, HttpStatus.OK);
         }catch (ArtistNotFound artistNotFound)
         {
-            return new ResponseEntity<>(artistNotFound.getMessage(), HttpStatus.NOT_FOUND);
+            Link parent = WebMvcLinkBuilder.linkTo(methodOn(ArtistController.class).getAllArtists(Optional.empty(),Optional.empty())).withRel("parent");
+            ArrayList<Link> array = new ArrayList<>();
+            array.add(parent);
+
+            Map<String, ArrayList<Link>> links = new HashMap<>();
+            links.put("_links", array);
+
+            return new ResponseEntity<>(links, HttpStatus.NOT_FOUND);
         }
     }
 
@@ -293,7 +364,6 @@ public class MusicController {
 
             }catch (RuntimeException runtimeException)
             {
-//                System.out.println(runtimeException.getMessage());
                 Music music = new Music(musicDTO.getName(), musicDTO.getYear(), musicDTO.getGenre(), musicDTO.getType());
                 music.setId(createdMusic.getId());
                 musicService.deleteMusic(music);
@@ -569,6 +639,7 @@ public class MusicController {
         }
         catch (RuntimeException runtimeException)
         {
+            // din cauza problemelor cu JPA si a join-ului facut manual, un album nu poate fi sters daca exista inca song-uri cu acel id album
             return new ResponseEntity<>(runtimeException.getMessage(), HttpStatus.CONFLICT);
         }
     }

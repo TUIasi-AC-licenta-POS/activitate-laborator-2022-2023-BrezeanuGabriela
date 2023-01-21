@@ -233,7 +233,7 @@ class Viewplaylists extends React.Component {
                     <br></br>
                     <br></br>
                     <pre id="info_song" className="login_text"></pre>
-                    <a href="" id="link_song"></a>
+                    <a href="" id="link_song" target="_blank"></a>
                     <br></br>
                     <Button className="button" onClick={(e) => this.setViewMusicDestination("home")}>Back</Button>
                 </div >

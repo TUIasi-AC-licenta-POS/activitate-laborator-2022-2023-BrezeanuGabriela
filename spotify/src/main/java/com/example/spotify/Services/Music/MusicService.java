@@ -86,14 +86,49 @@ public class MusicService implements IMusic {
             if(index < listMusic.size())
                 listResult.add(musicHateoasSimple.toModel(listMusic.get(index)));
         }
-
         this.items_per_page = 3;
 
         Link selfLink = linkTo(methodOn(MusicController.class).
-                getAllMusic(Optional.of(page), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()))
+                getAllMusic(Optional.of(page), items_per_page, Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()))
                 .withSelfRel();
 
-        CollectionModel<EntityModel<Music>> result = CollectionModel.of(listResult, selfLink);
+        Optional<Integer> nextPage = Optional.of(page + 1);
+        Optional<Integer> prevPage = Optional.of(page - 1);
+
+        Link nextLink = linkTo(methodOn(MusicController.class).
+                getAllMusic(nextPage, items_per_page, Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()))
+                .withRel("next");
+
+        Link prevLink = linkTo(methodOn(MusicController.class).
+                getAllMusic(prevPage, items_per_page, Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()))
+                .withRel("prev");
+
+        Link parentLink = linkTo(methodOn(MusicController.class).
+            getAllMusic(Optional.empty(), items_per_page, Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()))
+            .withRel("parent");
+
+        // nu sunt elemente pe pagina solicitata
+        if (listResult.size() == 0 && page != 0)
+        {
+            // determinam ultima pagina
+            if(!items_per_page.isPresent()) {
+                prevPage = Optional.of(listMusic.size() / this.items_per_page - 1);
+                prevLink = linkTo(methodOn(MusicController.class).
+                        getAllMusic(prevPage, items_per_page, Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()))
+                        .withRel("prev");
+                return CollectionModel.of(listResult, parentLink, prevLink);
+            }
+            else
+            {
+                prevPage = Optional.of(listMusic.size() / items_per_page.get() - 1);
+                prevLink = linkTo(methodOn(MusicController.class).
+                        getAllMusic(prevPage, items_per_page, Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()))
+                        .withRel("prev");
+                return CollectionModel.of(listResult, parentLink, prevLink);
+            }
+        }
+
+        CollectionModel<EntityModel<Music>> result = CollectionModel.of(listResult, selfLink, nextLink, prevLink);
         return result;
     }
 
@@ -130,6 +165,14 @@ public class MusicService implements IMusic {
                 .collect(Collectors.toList());
 
 
+        if(listResult.size() == 0)
+        {
+            Link parentLink = linkTo(methodOn(MusicController.class).
+                    getAllMusic(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()))
+                    .withRel("parent");
+            return CollectionModel.of(listResult, parentLink);
+        }
+
         CollectionModel<EntityModel<Music>> result = CollectionModel.of(listResult, selfLink);
         return result;
     }
@@ -146,6 +189,14 @@ public class MusicService implements IMusic {
                 .map(musicHateoasSimple::toModel)
                 .collect(Collectors.toList());
 
+
+        if(listResult.size() == 0)
+        {
+            Link parentLink = linkTo(methodOn(MusicController.class).
+                    getAllMusic(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()))
+                    .withRel("parent");
+            return CollectionModel.of(listResult, parentLink);
+        }
 
         CollectionModel<EntityModel<Music>> result = CollectionModel.of(listResult, selfLink);
         return result;
@@ -165,6 +216,13 @@ public class MusicService implements IMusic {
                     .map(musicHateoasSimple::toModel)
                     .collect(Collectors.toList());
 
+            if(listResult.size() == 0)
+            {
+                Link parentLink = linkTo(methodOn(MusicController.class).
+                        getAllMusic(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()))
+                        .withRel("parent");
+                return CollectionModel.of(listResult, parentLink);
+            }
 
             CollectionModel<EntityModel<Music>> result = CollectionModel.of(listResult, selfLink);
             return result;
@@ -213,9 +271,18 @@ public class MusicService implements IMusic {
     {
         if(artistRepository.findArtistByUuid(uuid) != null) {
             List<EntityModel<Music>> listMusic = musicRepository.findMusicByArtists(new Artist(uuid)).stream().map(musicHateoasSimple::toModel).collect(Collectors.toList());
-            Link selfLink = linkTo(methodOn(ArtistController.class).getAllArtists(Optional.empty(), Optional.empty())).withSelfRel();
-            CollectionModel<EntityModel<Music>> result = CollectionModel.of(listMusic, selfLink);
-            return result;
+
+            if(listMusic.size() == 0)
+            {
+                Link parentLink = linkTo(ArtistController.class).slash("artists").slash(uuid).withRel("parent");
+
+                return CollectionModel.of(listMusic, parentLink);
+            }
+
+            Link selfLink = linkTo(ArtistController.class).slash("artists").slash(uuid).slash("songs").withSelfRel();
+            Link parentLink = linkTo(ArtistController.class).slash("artists").slash(uuid).withRel("parent");
+
+            return CollectionModel.of(listMusic, selfLink, parentLink);
         }
         else
             throw new ArtistNotFound(uuid);

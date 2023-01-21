@@ -1,6 +1,7 @@
 package com.example.spotify.Controller;
 
 import com.example.spotify.Exceptions.ArtistNotFound;
+import com.example.spotify.Exceptions.ArtistUuidException;
 import com.example.spotify.Exceptions.JPAException;
 import com.example.spotify.Exceptions.JWTExceptions.CorruptedJwt;
 import com.example.spotify.Exceptions.JWTExceptions.ExpiredJwt;
@@ -77,6 +78,7 @@ public class ArtistController {
     @GetMapping(value = "/api/songcollection/artists/{artistUuid}", produces = "application/hal+json")
     public ResponseEntity<?> getArtistByUuid(@PathVariable final String artistUuid)
     {
+        // TODO check method
         try {
             EntityModel<Artist> artist = artistService.getArtistByUuid(artistUuid);
             return new ResponseEntity<>(artist, HttpStatus.OK);
@@ -86,7 +88,8 @@ public class ArtistController {
     }
 
     /////////////////////////////////     PUT     //////////////////////////////////
-    // metoda pentru tabela de join
+    // metoda pentru tabela de join - care a dat mari batai de cap cu jpa-ul vietii
+    // e put pentru ca setam noi PK-ul inregistrarii (uuid-id)
     @PutMapping(value = "/api/songcollection/artists/{uuid}/songs/{id}", produces = "application/hal+json")
     public ResponseEntity<?> addMusicArtist(
                                             @PathVariable String uuid,
@@ -109,7 +112,7 @@ public class ArtistController {
                 MusicArtist musicArtist = new MusicArtist(musicArtistIds1);
                 musicArtistRepository.save(musicArtist);
 
-                return new ResponseEntity(musicArtistIds1, HttpStatus.CREATED);
+                return new ResponseEntity(HttpStatus.NO_CONTENT);
             }
             else {
                 return new ResponseEntity("Artist not found!", HttpStatus.NOT_FOUND);
@@ -117,8 +120,6 @@ public class ArtistController {
         }
         else if(operation.equals("update"))
         {
-             // uuid ul din path e cel vechi, iar cel din body e cel nou
-            System.out.println(uuid);
             if(artistService.getArtistByUuid(musicArtistIds.get().getIdArtist()) != null)
             {
                 if (musicArtistRepository.findMusicArtistByIdArtistAndAndIdMusic(musicArtistIds.get().getIdArtist(), id) != null) {
@@ -222,9 +223,10 @@ public class ArtistController {
         try {
             // create
             if (artistRepository.findArtistByUuid(uuid) == null) {
+                // extra layer de securitate - uuid-ul din path trebuie sa coincida cu cel furnizat in body
                 if(!uuid.equals(artist.getUuid()))
                 {
-                    return new ResponseEntity("Uuid already exists!", HttpStatus.CONFLICT);
+                    return new ResponseEntity("Uuids are not the same - from body and from path!", HttpStatus.CONFLICT);
                 }
 
                 artist.setUuid(uuid);
@@ -234,16 +236,24 @@ public class ArtistController {
             }
             // update
             else {
-                // uuid ul din path e cel vechi, iar cel din body e cel nou
+                // extra layer de securitate - uuid-ul din path trebuie sa coincida cu cel furnizat in body
+                if(!artist.getUuid().equals(uuid))
+                {
+                    return new ResponseEntity("Uuids are not the same - from body and from path!", HttpStatus.CONFLICT);
+                }
+
                 EntityModel<Artist> updatedArtist = artistService.updateArtist(artist, uuid);
 
                 return new ResponseEntity(HttpStatus.NO_CONTENT);
             }
-            //return new ResponseEntity<>("bla bla bla", HttpStatus.NO_CONTENT);
         }
         // exceptii datorate constrangerilor SQL
         catch (JPAException jpaException) {
             return new ResponseEntity<>(jpaException.getMessage(), HttpStatus.CONFLICT);
+        }
+        catch (ArtistUuidException artistUuidException)
+        {
+            return new ResponseEntity<>(artistUuidException.getMessage(), HttpStatus.CONFLICT);
         }
         catch (RuntimeException runtimeException) {
             return new ResponseEntity<>(runtimeException.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
