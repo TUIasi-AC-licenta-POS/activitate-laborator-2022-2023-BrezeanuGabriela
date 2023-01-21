@@ -128,6 +128,18 @@ public class MusicService implements IMusic {
             }
         }
 
+        if (page == 0)
+        {
+            CollectionModel<EntityModel<Music>> result = CollectionModel.of(listResult, selfLink, nextLink);
+            return result;
+        }
+
+        if (page == (listMusic.size() / this.items_per_page - 1))
+        {
+            CollectionModel<EntityModel<Music>> result = CollectionModel.of(listResult, selfLink, prevLink);
+            return result;
+        }
+
         CollectionModel<EntityModel<Music>> result = CollectionModel.of(listResult, selfLink, nextLink, prevLink);
         return result;
     }

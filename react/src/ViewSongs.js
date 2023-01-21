@@ -10,7 +10,9 @@ class Viewsongs extends React.Component {
             isLoaded: false,
             buttonPressed: "",
             noPage: 0,
-            errorMessage: ""
+            errorMessage: "",
+            next: true,
+            prev: false
         };
         console.log(this.props);
         this.setPageNo = this.setPageNo.bind(this);
@@ -44,11 +46,10 @@ class Viewsongs extends React.Component {
 
     getSnapshotBeforeUpdate(prevProps, prevState) {
         return prevState;
-      }
+    }
 
-    componentDidUpdate(prevProps, prevState)
-    {
-        if(prevState.noPage != this.state.noPage)
+    componentDidUpdate(prevProps, prevState) {
+        if (prevState.noPage != this.state.noPage)
             this.makeRestReq();
     }
 
@@ -74,9 +75,21 @@ class Viewsongs extends React.Component {
                     let _embedded = json._embedded;
                     let musics = _embedded.musics;
                     let _links = json._links;
-                    // console.log(_embedded.musics);
 
                     // console.log(_links);
+                    if (_links.prev != undefined) {
+                        this.setState({ prev: true });
+                    }
+                    else {
+                        this.setState({ prev: false });
+                    }
+                    if (_links.next != undefined) {
+                        this.setState({ next: true });
+                    }
+                    else {
+                        this.setState({ next: false });
+                    }
+
                     this.setState({
                         items: musics,
                         isLoaded: true
@@ -114,39 +127,109 @@ class Viewsongs extends React.Component {
             )
         }
         else {
-            return (
-                <div className="App" >
+            if (this.state.next == true && this.state.prev == true)
+                return (
+                    <div className="App" >
 
-                    <h1 > Music from Rest </h1>
-                    <table >
-                        <tr >
-                            <th> Name </th>
-                            <th> Genre</th>
-                            <th> Type</th>
-                            <th> Year</th>
-                        </tr >
-                        {
+                        <h1 > Music from Rest </h1>
+                        <table >
+                            <tr >
+                                <th> Name </th>
+                                <th> Genre</th>
+                                <th> Type</th>
+                                <th> Year</th>
+                            </tr >
+                            {
 
-                            this.state.items.map((item) => (
+                                this.state.items.map((item) => (
 
 
-                                <tr>
-                                    <td > {item.name} </td>
-                                    <td > {item.genre} </td>
-                                    <td > {item.type} </td>
-                                    <td > {item.year} </td>
-                                </tr>
-                            ))
-                        }
-                    </table>
-                    <br></br>
-                    <p>Pagina {this.state.noPage}</p>
-                    <br></br>
-                    <Button className="button" onClick={(e) => this.setPageNo("prev")}>Previous</Button>
-                    <Button className="button" onClick={(e) => this.setPageNo("next")}>Next</Button>
-                    <Button className="button" onClick={(e) => this.setViewMusicDestination("home")}>Back</Button>
-                </div >
-            );
+                                    <tr>
+                                        <td > {item.name} </td>
+                                        <td > {item.genre} </td>
+                                        <td > {item.type} </td>
+                                        <td > {item.year} </td>
+                                    </tr>
+                                ))
+                            }
+                        </table>
+                        <br></br>
+                        <p>Pagina {this.state.noPage}</p>
+                        <br></br>
+                        <Button className="button" onClick={(e) => this.setPageNo("prev")}>Previous</Button>
+                        <Button className="button" onClick={(e) => this.setPageNo("next")}>Next</Button>
+                        <Button className="button" onClick={(e) => this.setViewMusicDestination("home")}>Back</Button>
+                    </div >
+                );
+
+            else if (this.state.next == false && this.state.prev == true)
+                return (
+                    <div className="App" >
+
+                        <h1 > Music from Rest </h1>
+                        <table >
+                            <tr >
+                                <th> Name </th>
+                                <th> Genre</th>
+                                <th> Type</th>
+                                <th> Year</th>
+                            </tr >
+                            {
+
+                                this.state.items.map((item) => (
+
+
+                                    <tr>
+                                        <td > {item.name} </td>
+                                        <td > {item.genre} </td>
+                                        <td > {item.type} </td>
+                                        <td > {item.year} </td>
+                                    </tr>
+                                ))
+                            }
+                        </table>
+                        <br></br>
+                        <p>Pagina {this.state.noPage}</p>
+                        <br></br>
+                        <Button className="button" onClick={(e) => this.setPageNo("prev")}>Previous</Button>
+                        <Button className="button" onClick={(e) => this.setViewMusicDestination("home")}>Back</Button>
+                    </div >
+                );
+            else
+                return (
+                    <div className="App" >
+
+                        <h1 > Music from Rest </h1>
+                        <table >
+                            <tr >
+                                <th> Name </th>
+                                <th> Genre</th>
+                                <th> Type</th>
+                                <th> Year</th>
+                            </tr >
+                            {
+
+                                this.state.items.map((item) => (
+
+
+                                    <tr>
+                                        <td > {item.name} </td>
+                                        <td > {item.genre} </td>
+                                        <td > {item.type} </td>
+                                        <td > {item.year} </td>
+                                    </tr>
+                                ))
+                            }
+                        </table>
+                        <br></br>
+                        <p>Pagina {this.state.noPage}</p>
+                        <br></br>
+
+                        <Button className="button" onClick={(e) => this.setPageNo("next")}>Next</Button>
+                        <Button className="button" onClick={(e) => this.setViewMusicDestination("home")}>Back</Button>
+                    </div >
+                );
+
         }
     };
 }
