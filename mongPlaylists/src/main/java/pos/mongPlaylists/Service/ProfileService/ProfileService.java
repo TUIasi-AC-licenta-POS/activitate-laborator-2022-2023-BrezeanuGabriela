@@ -127,8 +127,9 @@ public class ProfileService implements IProfile{
         if(profileDTO.getIdUser() == null) {
             throw new IncorrectRequestBody("IdUser not found in request body!");
         }
+
         if(profileRepository.findProfilePOJOByIdUser(profileDTO.getIdUser()) == null) {
-            // validarea datelor - firstName, lastName, email
+            // validarea datelor - firstName, lastName, email - RMI/LFI
             if(!checkProfileInformation(profileDTO))
             {
                 throw new UnprocessableReqBody();

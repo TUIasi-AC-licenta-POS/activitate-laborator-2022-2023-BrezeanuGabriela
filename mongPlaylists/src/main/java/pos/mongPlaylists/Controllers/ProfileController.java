@@ -227,6 +227,7 @@ public class ProfileController {
         }
         catch (UnprocessableReqBody unprocessableReqBody)
         {
+            // datele din cerere nu sunt conforme
             return new ResponseEntity<>(unprocessableReqBody.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
         }
     }
@@ -284,6 +285,8 @@ public class ProfileController {
                         }
 
                         Integer sub = (Integer) claims.get("sub");
+                        System.out.println(sub);
+                        System.out.println(profileDTO.getIdUser());
                         if(sub != profileDTO.getIdUser())
                         {
                             return new ResponseEntity<>("Forbidden!", HttpStatus.FORBIDDEN);
