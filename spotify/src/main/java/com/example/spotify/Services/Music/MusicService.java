@@ -9,7 +9,6 @@ import com.example.spotify.Model.Music.Music;
 import com.example.spotify.Model.Music.MusicRepository;
 //import com.example.spotify.View.MusicFromArtistDTO;
 import com.example.spotify.Model.MusicArtists.MusicArtist;
-import com.example.spotify.Model.MusicArtists.MusicArtistIds;
 import com.example.spotify.Model.MusicArtists.MusicArtistRepository;
 import com.example.spotify.View.DTOs.MusicCompleteDTO;
 import com.example.spotify.View.Hateoas.MusicHateoasSimple;
@@ -104,7 +103,7 @@ public class MusicService implements IMusic {
                 .withRel("prev");
 
         Link parentLink = linkTo(methodOn(MusicController.class).
-            getAllMusic(Optional.empty(), items_per_page, Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()))
+            getAllMusic(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()))
             .withRel("parent");
 
         // nu sunt elemente pe pagina solicitata
@@ -130,17 +129,17 @@ public class MusicService implements IMusic {
 
         if (page == 0)
         {
-            CollectionModel<EntityModel<Music>> result = CollectionModel.of(listResult, selfLink, nextLink);
+            CollectionModel<EntityModel<Music>> result = CollectionModel.of(listResult, selfLink, parentLink, nextLink);
             return result;
         }
 
         if (page == (listMusic.size() / this.items_per_page - 1))
         {
-            CollectionModel<EntityModel<Music>> result = CollectionModel.of(listResult, selfLink, prevLink);
+            CollectionModel<EntityModel<Music>> result = CollectionModel.of(listResult, selfLink, parentLink, prevLink);
             return result;
         }
 
-        CollectionModel<EntityModel<Music>> result = CollectionModel.of(listResult, selfLink, nextLink, prevLink);
+        CollectionModel<EntityModel<Music>> result = CollectionModel.of(listResult, selfLink, parentLink, nextLink, prevLink);
         return result;
     }
 
@@ -151,6 +150,9 @@ public class MusicService implements IMusic {
         Link selfLink = linkTo(methodOn(MusicController.class).
                 getAllMusic(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()))
                 .withSelfRel();
+        Link parentLink = linkTo(methodOn(MusicController.class).
+                getAllMusic(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()))
+                .withRel("parent");
 
         if( !match.isPresent() || (match.isPresent() && match.get().compareTo("exact") == 0)) {
             listMusic = musicRepository.findMusicByName(name);
@@ -179,13 +181,10 @@ public class MusicService implements IMusic {
 
         if(listResult.size() == 0)
         {
-            Link parentLink = linkTo(methodOn(MusicController.class).
-                    getAllMusic(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()))
-                    .withRel("parent");
             return CollectionModel.of(listResult, parentLink);
         }
 
-        CollectionModel<EntityModel<Music>> result = CollectionModel.of(listResult, selfLink);
+        CollectionModel<EntityModel<Music>> result = CollectionModel.of(listResult, selfLink, parentLink);
         return result;
     }
 
@@ -196,6 +195,9 @@ public class MusicService implements IMusic {
         Link selfLink = linkTo(methodOn(MusicController.class).
                 getAllMusic(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(year)))
                 .withSelfRel();
+        Link parentLink = linkTo(methodOn(MusicController.class).
+                getAllMusic(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()))
+                .withRel("parent");
 
         List<EntityModel<Music>> listResult = listMusic.stream()
                 .map(musicHateoasSimple::toModel)
@@ -204,13 +206,10 @@ public class MusicService implements IMusic {
 
         if(listResult.size() == 0)
         {
-            Link parentLink = linkTo(methodOn(MusicController.class).
-                    getAllMusic(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()))
-                    .withRel("parent");
             return CollectionModel.of(listResult, parentLink);
         }
 
-        CollectionModel<EntityModel<Music>> result = CollectionModel.of(listResult, selfLink);
+        CollectionModel<EntityModel<Music>> result = CollectionModel.of(listResult, selfLink, parentLink);
         return result;
     }
 
@@ -223,6 +222,9 @@ public class MusicService implements IMusic {
             Link selfLink = linkTo(methodOn(MusicController.class).
                     getAllMusic(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(genre), Optional.empty()))
                     .withSelfRel();
+            Link parentLink = linkTo(methodOn(MusicController.class).
+                    getAllMusic(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()))
+                    .withRel("parent");
 
             List<EntityModel<Music>> listResult = listMusic.stream()
                     .map(musicHateoasSimple::toModel)
@@ -230,13 +232,11 @@ public class MusicService implements IMusic {
 
             if(listResult.size() == 0)
             {
-                Link parentLink = linkTo(methodOn(MusicController.class).
-                        getAllMusic(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()))
-                        .withRel("parent");
+
                 return CollectionModel.of(listResult, parentLink);
             }
 
-            CollectionModel<EntityModel<Music>> result = CollectionModel.of(listResult, selfLink);
+            CollectionModel<EntityModel<Music>> result = CollectionModel.of(listResult, selfLink, parentLink);
             return result;
         }
         catch (IllegalArgumentException illegalArgumentException) {
@@ -314,10 +314,10 @@ public class MusicService implements IMusic {
             }
 
             if (music.getGenre() == Music.GENRE.unknown) {
-                throw new RuntimeException("Genre unknown. Please try again with one genre from rock, metal, pop.");
+                throw new RuntimeException("Genre unknown. Please try again with one from rock, metal, pop.");
             }
             if (music.getType() == Music.TYPE.unknown) {
-                throw new RuntimeException("Type unknown. Please try again with one type from single, song, album.");
+                throw new RuntimeException("Type unknown. Please try again with one from single, song, album.");
             }
 
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
@@ -350,12 +350,12 @@ public class MusicService implements IMusic {
 
             // daca e album, verific ca id album e null
             if(music.getType() == Music.TYPE.album && musicDTO.getIdAlbum() != null) {
-                throw new RuntimeException("The type is album, so id album must be null!");
+                throw new AlbumSingleException("The type is album, so id album must be null!");
             }
 
             // add single
             if(music.getType() == Music.TYPE.single && musicDTO.getIdAlbum() != null) {
-                throw new RuntimeException("The type is album, so id album must be null!");
+                throw new AlbumSingleException("The type is single, so id album must be null!");
             }
 
             musicRepository.save(music);

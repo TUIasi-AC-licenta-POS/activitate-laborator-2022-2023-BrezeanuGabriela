@@ -376,7 +376,8 @@ public class MusicController {
                 {
                     return new ResponseEntity<>("Artist not found!", HttpStatus.CONFLICT);
                 }
-                return new ResponseEntity<>("ana are mere", HttpStatus.NOT_FOUND);
+
+                return new ResponseEntity<>("Artist not found!", HttpStatus.CONFLICT);
             }
         }catch (JPAException jpaException)
         {
@@ -390,6 +391,10 @@ public class MusicController {
         catch (MusicAlreadyExists musicAlreadyExists)
         {
             return new ResponseEntity<>("Name already exists in this album!", HttpStatus.CONFLICT);
+        }
+        catch (AlbumSingleException albumSingleException)
+        {
+            return new ResponseEntity<>(albumSingleException.getMessage(), HttpStatus.CONFLICT);
         }
         catch (RuntimeException runtimeException)
         {

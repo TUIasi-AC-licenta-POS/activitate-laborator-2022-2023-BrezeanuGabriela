@@ -103,7 +103,7 @@ public class ArtistController {
             if (artistService.getArtistByUuid(uuid) != null) {
                 // verific ca nu se incearca sa se introduca un duplicat in tabelul de join
                 if (musicArtistRepository.findMusicArtistByIdArtistAndAndIdMusic(uuid, id) != null) {
-                    return new ResponseEntity(HttpStatus.CONFLICT);
+                    return new ResponseEntity("Duplicate!", HttpStatus.CONFLICT);
                 }
 
                 // id ul e verificat din music de unde vine cererea
